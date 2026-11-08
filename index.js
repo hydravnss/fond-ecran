@@ -163,6 +163,7 @@ function placeLayer(el, parent, asFirst) {
 function ensureRoot() {
     const root = placeLayer(makeLayer('fe-root', 'fe-img'), document.body, true);
     placeLayer(makeLayer('fe-status', 'fe-status-img'), document.body, true);
+    placeLayer(makeLayer('fe-bottom', 'fe-bottom-img'), document.body, true);
     const chat = document.getElementById('chat');
     if (chat) {
         placeLayer(makeLayer('fe-chat-root', 'fe-chat-img'), chat, true);
@@ -198,10 +199,8 @@ function screenCssHeight() {
             : Math.min(window.screen.width, window.screen.height);
     }
 
-    // Clavier ouvert : le viewport rétrécit beaucoup plus que la bande de l'indicateur.
-    if (oriented && layoutH && (oriented - layoutH > 80)) {
-        return layoutH;
-    }
+    // Le calque fond peut dépasser le viewport (bande sous la saisie / indicateur).
+    // Ne jamais s'en servir pour dimensionner #sheld ou #send_form.
     if (typeof isHomeScreenApp === 'function' && isHomeScreenApp() && oriented) {
         return Math.max(oriented, layoutH);
     }
@@ -430,7 +429,7 @@ function applyVars(root) {
     const dim = String(settings.dim / 100);
     const pos = `${settings.posY}%`;
     const zoom = String(settings.zoom / 100);
-    const targets = [root, document.getElementById('fe-chat-root'), document.getElementById('fe-status'), document.documentElement].filter(Boolean);
+    const targets = [root, document.getElementById('fe-chat-root'), document.getElementById('fe-status'), document.getElementById('fe-bottom'), document.documentElement].filter(Boolean);
     for (const el of targets) {
         el.style.setProperty('--fe-blur', blur);
         el.style.setProperty('--fe-dim', dim);
@@ -464,6 +463,7 @@ function setWallpaperSrc(url, fallbackUrl) {
     setOneSrc(document.getElementById('fe-img'), url, fallbackUrl);
     setOneSrc(document.getElementById('fe-chat-img'), url, fallbackUrl);
     setOneSrc(document.getElementById('fe-status-img'), url, fallbackUrl);
+    setOneSrc(document.getElementById('fe-bottom-img'), url, fallbackUrl);
 }
 
 function apply() {
@@ -745,5 +745,5 @@ jQuery(async () => {
         observer.observe(chat, { childList: true });
     }
     restoreSendFormLayout();
-    console.log(LOG, 'chargé (1.0.14)');
+    console.log(LOG, 'chargé (1.0.15)');
 });
