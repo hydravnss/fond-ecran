@@ -162,6 +162,7 @@ function placeLayer(el, parent, asFirst) {
 
 function ensureRoot() {
     const root = placeLayer(makeLayer('fe-root', 'fe-img'), document.body, true);
+    placeLayer(makeLayer('fe-status', 'fe-status-img'), document.body, true);
     const chat = document.getElementById('chat');
     if (chat) {
         placeLayer(makeLayer('fe-chat-root', 'fe-chat-img'), chat, true);
@@ -247,23 +248,18 @@ function paintChrome(active) {
     });
 }
 
-let savedThemeColor = null;
+let savedThemeMetas = null;
 
 function applyStatusBar(active) {
-    const metas = Array.from(document.querySelectorAll('meta[name="theme-color"]'));
     if (active) {
-        if (savedThemeColor === null) {
-            savedThemeColor = metas[0] ? (metas[0].getAttribute('content') || '') : '#333';
+        if (savedThemeMetas === null) {
+            savedThemeMetas = Array.from(document.querySelectorAll('meta[name="theme-color"]')).map((meta) => ({
+                content: meta.getAttribute('content') || '',
+                media: meta.getAttribute('media') || '',
+            }));
         }
-        if (metas.length) {
-            metas.forEach((meta) => meta.setAttribute('content', 'transparent'));
-        } else {
-            const meta = document.createElement('meta');
-            meta.setAttribute('name', 'theme-color');
-            meta.setAttribute('content', 'transparent');
-            meta.dataset.fe = '1';
-            document.head.appendChild(meta);
-        }
+        // iOS ignore "transparent" : on retire carrément la balise #333
+        document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => meta.remove());
         let apple = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
         if (!apple) {
             apple = document.createElement('meta');
@@ -272,9 +268,18 @@ function applyStatusBar(active) {
             document.head.appendChild(apple);
         }
         apple.setAttribute('content', 'black-translucent');
-    } else if (savedThemeColor !== null) {
-        document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
-            meta.setAttribute('content', savedThemeColor);
+    } else if (savedThemeMetas !== null) {
+        document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => meta.remove());
+        savedThemeMetas.forEach((info) => {
+            const meta = document.createElement('meta');
+            meta.setAttribute('name', 'theme-color');
+            if (info.content) {
+                meta.setAttribute('content', info.content);
+            }
+            if (info.media) {
+                meta.setAttribute('media', info.media);
+            }
+            document.head.appendChild(meta);
         });
         document.querySelectorAll('meta[data-fe="1"]').forEach((meta) => meta.remove());
     }
@@ -285,7 +290,7 @@ function applyVars(root) {
     const dim = String(settings.dim / 100);
     const pos = `${settings.posY}%`;
     const zoom = String(settings.zoom / 100);
-    const targets = [root, document.getElementById('fe-chat-root'), document.documentElement].filter(Boolean);
+    const targets = [root, document.getElementById('fe-chat-root'), document.getElementById('fe-status'), document.documentElement].filter(Boolean);
     for (const el of targets) {
         el.style.setProperty('--fe-blur', blur);
         el.style.setProperty('--fe-dim', dim);
@@ -318,6 +323,7 @@ function setOneSrc(img, url, fallbackUrl) {
 function setWallpaperSrc(url, fallbackUrl) {
     setOneSrc(document.getElementById('fe-img'), url, fallbackUrl);
     setOneSrc(document.getElementById('fe-chat-img'), url, fallbackUrl);
+    setOneSrc(document.getElementById('fe-status-img'), url, fallbackUrl);
 }
 
 function apply() {
@@ -598,5 +604,5 @@ jQuery(async () => {
         const observer = new MutationObserver(() => apply());
         observer.observe(chat, { childList: true });
     }
-    console.log(LOG, 'chargé (1.0.6)');
+    console.log(LOG, 'chargé (1.0.7)');
 });

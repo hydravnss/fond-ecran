@@ -26,6 +26,8 @@ Ferme complètement l'onglet SillyTavern et rouvre-le après l'installation ou u
 
 **1.0.6** : le fond monte jusqu'à l'heure et la batterie (barre d'état iOS), plus seulement jusqu'aux icônes.
 
+**1.0.7** : la couleur de barre d'état #333 est retirée (iOS l'ignorait en transparent) et le portrait est peint dans la bande sous l'heure.
+
 ## Installation
 
 Depuis SillyTavern → Extensions → Installer une extension :
