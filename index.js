@@ -256,9 +256,42 @@ function paintChatFallback(url) {
     paintBox(document.getElementById('bg_custom'), url);
 }
 
+function homeIndicatorExtra() {
+    let oriented = 0;
+    if (window.screen && window.screen.width && window.screen.height) {
+        const portrait = window.innerHeight >= window.innerWidth;
+        oriented = portrait
+            ? Math.max(window.screen.width, window.screen.height)
+            : Math.min(window.screen.width, window.screen.height);
+    }
+    const inner = window.innerHeight || 0;
+    const extra = oriented && inner ? (oriented - inner) : 0;
+    // Uniquement la bande de l'indicateur (~34px). Au-delà on ne touche à rien :
+    // une trop grande valeur faisait disparaître la zone de saisie.
+    if (extra > 8 && extra <= 50) {
+        return extra;
+    }
+    return 0;
+}
+
+function ensureBottomFill() {
+    let el = document.getElementById('fe-bottom-fill');
+    if (!el) {
+        el = document.createElement('div');
+        el.id = 'fe-bottom-fill';
+        el.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(el);
+    }
+    return el;
+}
+
 function pinSheldToScreenBottom(active) {
     const sheld = document.getElementById('sheld');
     const send = document.getElementById('send_form');
+    const form = document.getElementById('form_sheld');
+    const chat = document.getElementById('chat');
+    const fill = ensureBottomFill();
+
     if (!active) {
         setImportant(sheld, {
             'padding-bottom': '',
@@ -267,29 +300,70 @@ function pinSheldToScreenBottom(active) {
             'max-height': '',
             'margin-bottom': '',
         });
+        setImportant(send, {
+            position: '',
+            left: '',
+            right: '',
+            width: '',
+            bottom: '',
+            transform: '',
+            'margin-bottom': '',
+            'z-index': '',
+        });
+        setImportant(form, { 'min-height': '' });
+        setImportant(chat, { 'max-height': '' });
+        if (fill) {
+            fill.style.display = 'none';
+        }
         return;
     }
-    if (!sheld) {
-        return;
-    }
+
+    // Annule la hauteur forcée de 1.0.12 qui envoyait la saisie hors écran.
     setImportant(sheld, {
         'padding-bottom': '0px',
         'margin-bottom': '0px',
+        height: '',
+        bottom: '',
+        'max-height': '',
+    });
+    setImportant(chat, {
         'max-height': 'none',
     });
+
+    const extra = homeIndicatorExtra();
     if (send) {
         setImportant(send, {
+            position: 'fixed',
+            left: '0px',
+            right: '0px',
+            width: '100%',
+            bottom: extra ? `-${extra}px` : '0px',
+            transform: 'none',
             'margin-bottom': '0px',
+            'z-index': '40',
+        });
+        const sendH = send.getBoundingClientRect().height || send.offsetHeight || 48;
+        if (form) {
+            setImportant(form, {
+                'min-height': `${Math.max(0, Math.round(sendH - extra))}px`,
+                'margin-bottom': '0px',
+            });
+        }
+    }
+
+    if (fill) {
+        fill.style.display = 'block';
+        setImportant(fill, {
+            position: 'fixed',
+            left: '0px',
+            right: '0px',
+            bottom: '0px',
+            height: `${extra || 34}px`,
+            'background-color': 'rgba(32, 32, 36, 0.38)',
+            'z-index': '39',
+            'pointer-events': 'none',
         });
     }
-    const top = sheld.getBoundingClientRect().top;
-    const targetH = Math.max(100, Math.round(screenCssHeight() - top));
-    setImportant(sheld, {
-        height: `${targetH}px`,
-        bottom: 'auto',
-        'max-height': 'none',
-        'padding-bottom': '0px',
-    });
 }
 
 function paintChrome(active) {
@@ -774,5 +848,5 @@ jQuery(async () => {
             pinSheldToScreenBottom(true);
         }
     }, 400);
-    console.log(LOG, 'chargé (1.0.12)');
+    console.log(LOG, 'chargé (1.0.13)');
 });
