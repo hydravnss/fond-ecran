@@ -136,7 +136,7 @@ function fallbackAvatarUrl(key) {
 }
 
 function ensureRoot() {
-    const sheld = document.getElementById('sheld');
+    const chat = document.getElementById('chat');
     let root = document.getElementById('fe-root');
     const imgOk = root && root.querySelector('img#fe-img');
     if (!imgOk) {
@@ -145,40 +145,29 @@ function ensureRoot() {
         root.id = 'fe-root';
         root.innerHTML = '<img id="fe-img" alt="" decoding="async"><div id="fe-dim" aria-hidden="true"></div>';
     }
-    if (sheld && root.parentElement !== sheld) {
-        sheld.insertBefore(root, sheld.firstChild);
-    } else if (!sheld && !root.parentElement) {
+    if (chat && root.parentElement !== chat) {
+        chat.insertBefore(root, chat.firstChild);
+    } else if (!chat && !root.parentElement) {
         document.body.prepend(root);
     }
     return root;
 }
 
-const CLEAR_PROPS = [
-    ['background', 'transparent'],
-    ['background-color', 'transparent'],
-    ['background-image', 'none'],
-    ['backdrop-filter', 'none'],
-    ['-webkit-backdrop-filter', 'none'],
-];
-
-function setLayerClear(on) {
-    for (const id of ['chat', 'sheld', 'form_sheld']) {
-        const el = document.getElementById(id);
-        if (!el) {
-            continue;
-        }
-        for (const [prop, value] of CLEAR_PROPS) {
-            if (on) {
-                el.style.setProperty(prop, value, 'important');
-            } else {
-                el.style.removeProperty(prop);
-            }
-        }
-        if (on) {
-            el.style.setProperty('--SmartThemeChatTintColor', 'transparent', 'important');
-        } else {
-            el.style.removeProperty('--SmartThemeChatTintColor');
-        }
+function paintChatFallback(url) {
+    const chat = document.getElementById('chat');
+    if (!chat) {
+        return;
+    }
+    if (url) {
+        chat.style.setProperty('background-image', cssUrl(url), 'important');
+        chat.style.setProperty('background-size', 'cover', 'important');
+        chat.style.setProperty('background-position', `center ${settings.posY}%`, 'important');
+        chat.style.setProperty('background-repeat', 'no-repeat', 'important');
+    } else {
+        chat.style.removeProperty('background-image');
+        chat.style.removeProperty('background-size');
+        chat.style.removeProperty('background-position');
+        chat.style.removeProperty('background-repeat');
     }
 }
 
@@ -221,13 +210,14 @@ function apply() {
     const active = !!(settings.enabled && key && url);
 
     document.body.classList.toggle('fe-on', active);
-    setLayerClear(active);
     if (active) {
         applyVars(root);
         const custom = !!(settings.chars[key] && settings.chars[key].custom);
         setWallpaperSrc(url, custom ? '' : fallbackAvatarUrl(key));
+        paintChatFallback(url);
     } else {
         setWallpaperSrc('');
+        paintChatFallback('');
     }
     refreshSettingsPreview();
 }
@@ -483,5 +473,5 @@ jQuery(async () => {
         const observer = new MutationObserver(() => apply());
         observer.observe(chat, { childList: true });
     }
-    console.log(LOG, 'chargé (1.0.2)');
+    console.log(LOG, 'chargé (1.0.3)');
 });

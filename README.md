@@ -18,6 +18,8 @@ Ferme complètement l'onglet SillyTavern et rouvre-le après l'installation ou u
 
 **1.0.2** : l'arrière-plan opaque du thème (Dark Lite, etc.) ne cache plus l'image.
 
+**1.0.3** : l'image est peinte dans le chat, au-dessus de la couleur du thème.
+
 ## Installation
 
 Depuis SillyTavern → Extensions → Installer une extension :

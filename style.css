@@ -1,6 +1,6 @@
 /* Fond d'écran — calque derrière le chat, style Emochi */
 
-#sheld #fe-root,
+#chat > #fe-root,
 #fe-root {
     position: absolute;
     inset: 0;
@@ -10,6 +10,7 @@
     display: none;
 }
 
+body.fe-on #chat > #fe-root,
 body.fe-on #fe-root {
     display: block;
 }
@@ -38,42 +39,23 @@ body.fe-on #fe-root {
     background: rgba(0, 0, 0, var(--fe-dim, 0.4));
 }
 
-/* Dark Lite et les autres thèmes peignent #chat en noir opaque via
-   --SmartThemeChatTintColor (Arrière-plan de la discussion). On les annule. */
-html body.fe-on #sheld,
-html body.fe-on #chat,
-html body.fe-on #form_sheld,
-html body.fe-on.no-blur #sheld,
-html body.fe-on.no-blur #chat,
-html body.fe-on.no-blur #form_sheld {
-    --SmartThemeChatTintColor: transparent !important;
-    background: transparent !important;
-    background-color: transparent !important;
-    background-image: none !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    box-shadow: none !important;
+/* L'image est un enfant du chat : elle se peint AU-DESSUS de
+   --SmartThemeChatTintColor (le noir opaque de Dark Lite). */
+html body.fe-on #chat {
+    position: relative !important;
+    isolation: isolate;
 }
 
-html body.fe-on #chat,
-html body.fe-on #form_sheld,
-html body.fe-on #send_form {
+body.fe-on #chat > .mes,
+body.fe-on #chat > *:not(#fe-root) {
     position: relative;
     z-index: 1;
 }
 
-html body.fe-on #chat {
-    border-color: transparent !important;
-}
-
-html body.fe-on #bg1,
-html body.fe-on #bg_custom {
-    opacity: 0 !important;
-    visibility: hidden !important;
-}
-
 html body.fe-on #send_form,
 html body.fe-on.no-blur #send_form {
+    position: relative;
+    z-index: 1;
     background-color: rgba(20, 20, 22, 0.82) !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
