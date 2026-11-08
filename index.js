@@ -169,22 +169,81 @@ function ensureRoot() {
     return root;
 }
 
-function paintChatFallback(url) {
-    const chat = document.getElementById('chat');
-    if (!chat) {
+function setImportant(el, props) {
+    if (!el) {
+        return;
+    }
+    for (const [name, value] of Object.entries(props)) {
+        if (value === null || value === '') {
+            el.style.removeProperty(name);
+        } else {
+            el.style.setProperty(name, value, 'important');
+        }
+    }
+}
+
+function lockLayer(root) {
+    setImportant(root, {
+        position: 'fixed',
+        top: '0px',
+        left: '0px',
+        right: '0px',
+        bottom: '0px',
+        width: '100vw',
+        height: '100dvh',
+        'z-index': '0',
+        'pointer-events': 'none',
+        overflow: 'hidden',
+        display: 'block',
+        margin: '0px',
+        padding: '0px',
+    });
+}
+
+function paintBox(el, url) {
+    if (!el) {
         return;
     }
     if (url) {
-        chat.style.setProperty('background-image', cssUrl(url), 'important');
-        chat.style.setProperty('background-size', 'cover', 'important');
-        chat.style.setProperty('background-position', `center ${settings.posY}%`, 'important');
-        chat.style.setProperty('background-repeat', 'no-repeat', 'important');
+        setImportant(el, {
+            'background-image': cssUrl(url),
+            'background-size': 'cover',
+            'background-position': `center ${settings.posY}%`,
+            'background-repeat': 'no-repeat',
+        });
     } else {
-        chat.style.removeProperty('background-image');
-        chat.style.removeProperty('background-size');
-        chat.style.removeProperty('background-position');
-        chat.style.removeProperty('background-repeat');
+        setImportant(el, {
+            'background-image': '',
+            'background-size': '',
+            'background-position': '',
+            'background-repeat': '',
+        });
     }
+}
+
+function paintChatFallback(url) {
+    paintBox(document.getElementById('chat'), url);
+    paintBox(document.getElementById('bg1'), url);
+    paintBox(document.getElementById('bg_custom'), url);
+}
+
+function paintChrome(active) {
+    const clear = {
+        'background-color': active ? 'transparent' : '',
+        'background-image': active ? 'none' : '',
+        'box-shadow': active ? 'none' : '',
+        'backdrop-filter': active ? 'none' : '',
+        '-webkit-backdrop-filter': active ? 'none' : '',
+    };
+    for (const id of ['top-bar', 'top-settings-holder', 'form_sheld', 'sheld']) {
+        setImportant(document.getElementById(id), clear);
+    }
+    setImportant(document.getElementById('send_form'), {
+        'background-color': active ? 'rgba(32, 32, 36, 0.38)' : '',
+        'background-image': active ? 'none' : '',
+        'backdrop-filter': active ? 'none' : '',
+        '-webkit-backdrop-filter': active ? 'none' : '',
+    });
 }
 
 function applyVars(root) {
@@ -239,12 +298,15 @@ function apply() {
     document.body.classList.toggle('fe-on', active);
     if (active) {
         applyVars(root);
+        lockLayer(root);
         const custom = !!(settings.chars[key] && settings.chars[key].custom);
         setWallpaperSrc(url, custom ? '' : fallbackAvatarUrl(key));
         paintChatFallback(url);
+        paintChrome(true);
     } else {
         setWallpaperSrc('');
         paintChatFallback('');
+        paintChrome(false);
     }
     refreshSettingsPreview();
 }
@@ -500,5 +562,5 @@ jQuery(async () => {
         const observer = new MutationObserver(() => apply());
         observer.observe(chat, { childList: true });
     }
-    console.log(LOG, 'chargé (1.0.4)');
+    console.log(LOG, 'chargé (1.0.5)');
 });

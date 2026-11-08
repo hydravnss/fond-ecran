@@ -22,6 +22,8 @@ Ferme complètement l'onglet SillyTavern et rouvre-le après l'installation ou u
 
 **1.0.4** : le fond passe aussi derrière la barre d'icônes et autour de la zone de saisie (plus de bande noire) ; la barre de message garde juste un peu de gris.
 
+**1.0.5** : le fond est aussi collé sur l'arrière-plan de SillyTavern, et la barre du haut / la zone de saisie sont forcées en transparent (un peu de gris sur le champ de texte).
+
 ## Installation
 
 Depuis SillyTavern → Extensions → Installer une extension :
