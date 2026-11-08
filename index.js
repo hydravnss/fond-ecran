@@ -174,6 +174,11 @@ function setLayerClear(on) {
                 el.style.removeProperty(prop);
             }
         }
+        if (on) {
+            el.style.setProperty('--SmartThemeChatTintColor', 'transparent', 'important');
+        } else {
+            el.style.removeProperty('--SmartThemeChatTintColor');
+        }
     }
 }
 
@@ -466,6 +471,9 @@ jQuery(async () => {
         if (types.SETTINGS_LOADED_AFTER) {
             eventSource.on(types.SETTINGS_LOADED_AFTER, refresh);
         }
+        if (types.SETTINGS_UPDATED) {
+            eventSource.on(types.SETTINGS_UPDATED, apply);
+        }
     } catch (err) {
         console.debug(LOG, 'évènements indisponibles', err);
     }
@@ -475,5 +483,5 @@ jQuery(async () => {
         const observer = new MutationObserver(() => apply());
         observer.observe(chat, { childList: true });
     }
-    console.log(LOG, 'chargé (1.0.1)');
+    console.log(LOG, 'chargé (1.0.2)');
 });

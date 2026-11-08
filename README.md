@@ -16,6 +16,8 @@ Ferme complètement l'onglet SillyTavern et rouvre-le après l'installation ou u
 
 **1.0.1** : le fond s'affiche vraiment derrière le chat (plus seulement dans l'aperçu des réglages).
 
+**1.0.2** : l'arrière-plan opaque du thème (Dark Lite, etc.) ne cache plus l'image.
+
 ## Installation
 
 Depuis SillyTavern → Extensions → Installer une extension :

@@ -38,10 +38,15 @@ body.fe-on #fe-root {
     background: rgba(0, 0, 0, var(--fe-dim, 0.4));
 }
 
-/* Le panneau de chat de ST a un fond opaque : on le rend transparent. */
-body.fe-on #sheld,
-body.fe-on #chat,
-body.fe-on #form_sheld {
+/* Dark Lite et les autres thèmes peignent #chat en noir opaque via
+   --SmartThemeChatTintColor (Arrière-plan de la discussion). On les annule. */
+html body.fe-on #sheld,
+html body.fe-on #chat,
+html body.fe-on #form_sheld,
+html body.fe-on.no-blur #sheld,
+html body.fe-on.no-blur #chat,
+html body.fe-on.no-blur #form_sheld {
+    --SmartThemeChatTintColor: transparent !important;
     background: transparent !important;
     background-color: transparent !important;
     background-image: none !important;
@@ -50,24 +55,25 @@ body.fe-on #form_sheld {
     box-shadow: none !important;
 }
 
-body.fe-on #chat,
-body.fe-on #form_sheld,
-body.fe-on #send_form {
+html body.fe-on #chat,
+html body.fe-on #form_sheld,
+html body.fe-on #send_form {
     position: relative;
     z-index: 1;
 }
 
-body.fe-on #chat {
+html body.fe-on #chat {
     border-color: transparent !important;
 }
 
-body.fe-on #bg1,
-body.fe-on #bg_custom {
+html body.fe-on #bg1,
+html body.fe-on #bg_custom {
     opacity: 0 !important;
     visibility: hidden !important;
 }
 
-body.fe-on #send_form {
+html body.fe-on #send_form,
+html body.fe-on.no-blur #send_form {
     background-color: rgba(20, 20, 22, 0.82) !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
