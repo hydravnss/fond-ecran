@@ -308,6 +308,19 @@ function sampleTopColor(url, done) {
     img.src = url;
 }
 
+function isHomeScreenApp() {
+    const nav = window.navigator || {};
+    if (nav.standalone) {
+        return true;
+    }
+    try {
+        return window.matchMedia('(display-mode: standalone)').matches
+            || window.matchMedia('(display-mode: fullscreen)').matches;
+    } catch (err) {
+        return false;
+    }
+}
+
 function applyStatusBar(active, url) {
     ensureAppleStatusBar();
     if (active) {
@@ -317,20 +330,17 @@ function applyStatusBar(active, url) {
                 media: meta.getAttribute('media') || '',
             }));
         }
-        document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
-            if (!meta.dataset.fe) {
-                meta.remove();
-            }
-        });
-        // Safari ne montre qu'une couleur unie ici : on prend celle du haut du portrait
-        // au lieu du #333 noir. En mode écran d'accueil, black-translucent laisse
-        // passer l'image.
-        setThemeColorValue('#1a1a1e');
-        sampleTopColor(url, (color) => {
-            if (color && document.body.classList.contains('fe-on')) {
-                setThemeColorValue(color);
-            }
-        });
+        // Depuis l'icône, une theme-color unie recouvre le portrait derrière
+        // l'heure. On la retire pour laisser black-translucent + #fe-status.
+        document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => meta.remove());
+        if (!isHomeScreenApp()) {
+            setThemeColorValue('#1a1a1e');
+            sampleTopColor(url, (color) => {
+                if (color && document.body.classList.contains('fe-on') && !isHomeScreenApp()) {
+                    setThemeColorValue(color);
+                }
+            });
+        }
     } else if (savedThemeMetas !== null) {
         document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => meta.remove());
         savedThemeMetas.forEach((info) => {
@@ -667,5 +677,5 @@ jQuery(async () => {
         const observer = new MutationObserver(() => apply());
         observer.observe(chat, { childList: true });
     }
-    console.log(LOG, 'chargé (1.0.8)');
+    console.log(LOG, 'chargé (1.0.9)');
 });

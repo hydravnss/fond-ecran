@@ -30,6 +30,8 @@ Ferme complètement l'onglet SillyTavern et rouvre-le après l'installation ou u
 
 **1.0.8** : dans Safari, la bande sous l'heure prend la couleur du haut du portrait (Safari n'y autorise pas une photo). En ajoutant SillyTavern à l'écran d'accueil, le fond passe derrière l'horloge.
 
+**1.0.9** : ouvert depuis l'icône de l'écran d'accueil, plus de couleur unie sur la barre d'état — le portrait peut passer derrière l'heure.
+
 ## Installation
 
 Depuis SillyTavern → Extensions → Installer une extension :
