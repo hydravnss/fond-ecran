@@ -1,5 +1,9 @@
 /* Fond d'écran — calque derrière le chat, style Emochi */
 
+html {
+    color-scheme: dark;
+}
+
 #fe-root,
 #fe-chat-root,
 .fe-layer {

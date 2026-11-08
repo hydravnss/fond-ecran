@@ -321,8 +321,21 @@ function isHomeScreenApp() {
     }
 }
 
+function ensureDarkColorScheme() {
+    let meta = document.querySelector('meta[name="color-scheme"]');
+    if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('name', 'color-scheme');
+        meta.dataset.fe = '1';
+        document.head.appendChild(meta);
+    }
+    meta.setAttribute('content', 'dark');
+    document.documentElement.style.colorScheme = 'dark';
+}
+
 function applyStatusBar(active, url) {
     ensureAppleStatusBar();
+    ensureDarkColorScheme();
     if (active) {
         if (savedThemeMetas === null) {
             savedThemeMetas = Array.from(document.querySelectorAll('meta[name="theme-color"]')).map((meta) => ({
@@ -330,16 +343,10 @@ function applyStatusBar(active, url) {
                 media: meta.getAttribute('media') || '',
             }));
         }
-        // Depuis l'icône, une theme-color unie recouvre le portrait derrière
-        // l'heure. On la retire pour laisser black-translucent + #fe-status.
-        document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => meta.remove());
-        if (!isHomeScreenApp()) {
-            setThemeColorValue('#1a1a1e');
-            sampleTopColor(url, (color) => {
-                if (color && document.body.classList.contains('fe-on') && !isHomeScreenApp()) {
-                    setThemeColorValue(color);
-                }
-            });
+        // Ne plus retirer theme-color : sans elle iOS traite l'app écran
+        // d'accueil comme claire et délavé le haut, les icônes et le fond.
+        if (!document.querySelector('meta[name="theme-color"]')) {
+            setThemeColorValue('#333333');
         }
     } else if (savedThemeMetas !== null) {
         document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => meta.remove());
@@ -677,5 +684,5 @@ jQuery(async () => {
         const observer = new MutationObserver(() => apply());
         observer.observe(chat, { childList: true });
     }
-    console.log(LOG, 'chargé (1.0.9)');
+    console.log(LOG, 'chargé (1.0.10)');
 });
