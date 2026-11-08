@@ -160,10 +160,23 @@ function placeLayer(el, parent, asFirst) {
     return el;
 }
 
+function placeLayerLast(el, parent) {
+    if (!parent) {
+        return el;
+    }
+    if (el.parentElement !== parent || parent.lastElementChild !== el) {
+        parent.appendChild(el);
+    }
+    return el;
+}
+
 function ensureRoot() {
     const root = placeLayer(makeLayer('fe-root', 'fe-img'), document.body, true);
     placeLayer(makeLayer('fe-status', 'fe-status-img'), document.body, true);
-    placeLayer(makeLayer('fe-bottom', 'fe-bottom-img'), document.body, true);
+    const sheld = document.getElementById('sheld');
+    if (sheld) {
+        placeLayerLast(makeLayer('fe-bottom', 'fe-bottom-img'), sheld);
+    }
     const chat = document.getElementById('chat');
     if (chat) {
         placeLayer(makeLayer('fe-chat-root', 'fe-chat-img'), chat, true);
@@ -745,5 +758,5 @@ jQuery(async () => {
         observer.observe(chat, { childList: true });
     }
     restoreSendFormLayout();
-    console.log(LOG, 'chargé (1.0.15)');
+    console.log(LOG, 'chargé (1.0.16)');
 });

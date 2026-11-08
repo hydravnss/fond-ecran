@@ -62,16 +62,19 @@ body.fe-on #fe-bottom {
     border: 0;
 }
 
-/* Bande sous la saisie : même portrait, juste le bas de l'image */
+/* Bande sous la saisie : dans le flux de #sheld, pas en fixed (sinon derrière le clavier). */
 #fe-bottom {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: calc(max(env(safe-area-inset-bottom, 0px), 40px) + 24px);
-    z-index: 25;
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    flex: 0 0 auto;
+    width: 100%;
+    height: max(env(safe-area-inset-bottom, 0px), 34px);
+    margin: 0;
     overflow: hidden;
     pointer-events: none;
+    z-index: 1;
 }
 
 #fe-bottom .fe-img,
@@ -155,6 +158,14 @@ html body.fe-on.no-blur #sheld,
 html body.fe-on.no-blur #form_sheld {
     background-color: transparent !important;
     background-image: none !important;
+}
+
+/* Enlever la réserve PWA noire sous la saisie : la bande #fe-bottom la remplace. */
+html body.fe-on #sheld,
+html body.fe-on.no-blur #sheld,
+html body.PWA.fe-on #sheld {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
 }
 
 /* Barre de saisie : dans le flux d'origine, juste un peu de gris. */
