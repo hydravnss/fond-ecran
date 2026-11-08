@@ -77,10 +77,6 @@ function nameForKey(key) {
     return ch?.name || key;
 }
 
-function hasWelcome() {
-    return !!document.querySelector('#chat .welcomePanel');
-}
-
 function avatarUrlForKey(key) {
     const c = ctx();
     if (!key) {
@@ -132,24 +128,82 @@ function cssUrl(url) {
     return `url("${String(url).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}")`;
 }
 
-function ensureRoot() {
-    let root = document.getElementById('fe-root');
-    if (root) {
-        return root;
+function fallbackAvatarUrl(key) {
+    if (!key || key.startsWith('group:') || key === 'none') {
+        return '';
     }
-    root = document.createElement('div');
-    root.id = 'fe-root';
-    root.innerHTML = '<div id="fe-img" aria-hidden="true"></div><div id="fe-dim" aria-hidden="true"></div>';
-    document.body.prepend(root);
+    return `/characters/${encodeURIComponent(key)}`;
+}
+
+function ensureRoot() {
+    const sheld = document.getElementById('sheld');
+    let root = document.getElementById('fe-root');
+    const imgOk = root && root.querySelector('img#fe-img');
+    if (!imgOk) {
+        root?.remove();
+        root = document.createElement('div');
+        root.id = 'fe-root';
+        root.innerHTML = '<img id="fe-img" alt="" decoding="async"><div id="fe-dim" aria-hidden="true"></div>';
+    }
+    if (sheld && root.parentElement !== sheld) {
+        sheld.insertBefore(root, sheld.firstChild);
+    } else if (!sheld && !root.parentElement) {
+        document.body.prepend(root);
+    }
     return root;
 }
 
-function applyVars(target, imageUrl) {
-    target.style.setProperty('--fe-blur', `${settings.blur}px`);
-    target.style.setProperty('--fe-dim', String(settings.dim / 100));
-    target.style.setProperty('--fe-pos', `${settings.posY}%`);
-    target.style.setProperty('--fe-zoom', String(settings.zoom / 100));
-    target.style.setProperty('--fe-image', cssUrl(imageUrl));
+const CLEAR_PROPS = [
+    ['background', 'transparent'],
+    ['background-color', 'transparent'],
+    ['background-image', 'none'],
+    ['backdrop-filter', 'none'],
+    ['-webkit-backdrop-filter', 'none'],
+];
+
+function setLayerClear(on) {
+    for (const id of ['chat', 'sheld', 'form_sheld']) {
+        const el = document.getElementById(id);
+        if (!el) {
+            continue;
+        }
+        for (const [prop, value] of CLEAR_PROPS) {
+            if (on) {
+                el.style.setProperty(prop, value, 'important');
+            } else {
+                el.style.removeProperty(prop);
+            }
+        }
+    }
+}
+
+function applyVars(root) {
+    root.style.setProperty('--fe-blur', `${settings.blur}px`);
+    root.style.setProperty('--fe-dim', String(settings.dim / 100));
+    root.style.setProperty('--fe-pos', `${settings.posY}%`);
+    root.style.setProperty('--fe-zoom', String(settings.zoom / 100));
+}
+
+function setWallpaperSrc(url, fallbackUrl) {
+    const img = document.getElementById('fe-img');
+    if (!img) {
+        return;
+    }
+    img.onerror = () => {
+        if (fallbackUrl && img.dataset.feTried !== 'fallback') {
+            img.dataset.feTried = 'fallback';
+            img.src = fallbackUrl;
+        }
+    };
+    if (!url) {
+        img.removeAttribute('src');
+        img.dataset.feTried = '';
+        return;
+    }
+    if (img.getAttribute('src') !== url) {
+        img.dataset.feTried = '';
+        img.src = url;
+    }
 }
 
 function apply() {
@@ -159,13 +213,16 @@ function apply() {
     const root = ensureRoot();
     const key = currentKey();
     const url = imageUrlForKey(key);
-    const active = !!(settings.enabled && key && url && !hasWelcome());
+    const active = !!(settings.enabled && key && url);
 
     document.body.classList.toggle('fe-on', active);
+    setLayerClear(active);
     if (active) {
-        applyVars(root, url);
+        applyVars(root);
+        const custom = !!(settings.chars[key] && settings.chars[key].custom);
+        setWallpaperSrc(url, custom ? '' : fallbackAvatarUrl(key));
     } else {
-        root.style.setProperty('--fe-image', 'none');
+        setWallpaperSrc('');
     }
     refreshSettingsPreview();
 }
@@ -418,5 +475,5 @@ jQuery(async () => {
         const observer = new MutationObserver(() => apply());
         observer.observe(chat, { childList: true });
     }
-    console.log(LOG, 'chargé (1.0.0)');
+    console.log(LOG, 'chargé (1.0.1)');
 });

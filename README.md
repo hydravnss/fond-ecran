@@ -14,6 +14,8 @@ Les curseurs s'appliquent à tous les chats. L'image personnalisée est enregist
 
 Ferme complètement l'onglet SillyTavern et rouvre-le après l'installation ou une mise à jour.
 
+**1.0.1** : le fond s'affiche vraiment derrière le chat (plus seulement dans l'aperçu des réglages).
+
 ## Installation
 
 Depuis SillyTavern → Extensions → Installer une extension :

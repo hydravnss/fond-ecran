@@ -1,7 +1,8 @@
 /* Fond d'écran — calque derrière le chat, style Emochi */
 
+#sheld #fe-root,
 #fe-root {
-    position: fixed;
+    position: absolute;
     inset: 0;
     z-index: 0;
     overflow: hidden;
@@ -15,15 +16,20 @@ body.fe-on #fe-root {
 
 #fe-img {
     position: absolute;
-    inset: calc(-2 * var(--fe-blur, 0px) - 6px);
-    background-color: #111114;
-    background-image: var(--fe-image, none);
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center var(--fe-pos, 28%);
-    transform: scale(var(--fe-zoom, 1));
+    top: 50%;
+    left: 50%;
+    width: 130%;
+    height: 130%;
+    object-fit: cover;
+    object-position: center var(--fe-pos, 28%);
+    transform: translate(-50%, -50%) scale(var(--fe-zoom, 1));
     filter: blur(var(--fe-blur, 0px));
     -webkit-filter: blur(var(--fe-blur, 0px));
+    border: 0;
+}
+
+#fe-img:not([src]) {
+    visibility: hidden;
 }
 
 #fe-dim {
@@ -32,15 +38,23 @@ body.fe-on #fe-root {
     background: rgba(0, 0, 0, var(--fe-dim, 0.4));
 }
 
-/* Le panneau de chat de ST a son propre flou/teint : on l'enlève pour voir le fond. */
+/* Le panneau de chat de ST a un fond opaque : on le rend transparent. */
 body.fe-on #sheld,
-body.fe-on #chat {
+body.fe-on #chat,
+body.fe-on #form_sheld {
     background: transparent !important;
     background-color: transparent !important;
     background-image: none !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
     box-shadow: none !important;
+}
+
+body.fe-on #chat,
+body.fe-on #form_sheld,
+body.fe-on #send_form {
+    position: relative;
+    z-index: 1;
 }
 
 body.fe-on #chat {
@@ -51,6 +65,12 @@ body.fe-on #bg1,
 body.fe-on #bg_custom {
     opacity: 0 !important;
     visibility: hidden !important;
+}
+
+body.fe-on #send_form {
+    background-color: rgba(20, 20, 22, 0.82) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
 }
 
 /* Cartes de messages, façon Emochi */
