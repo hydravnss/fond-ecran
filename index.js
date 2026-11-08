@@ -135,20 +135,36 @@ function fallbackAvatarUrl(key) {
     return `/characters/${encodeURIComponent(key)}`;
 }
 
-function ensureRoot() {
-    const chat = document.getElementById('chat');
-    let root = document.getElementById('fe-root');
-    const imgOk = root && root.querySelector('img#fe-img');
+function makeLayer(id, imgId) {
+    let el = document.getElementById(id);
+    const imgOk = el && el.querySelector(`img#${imgId}`);
     if (!imgOk) {
-        root?.remove();
-        root = document.createElement('div');
-        root.id = 'fe-root';
-        root.innerHTML = '<img id="fe-img" alt="" decoding="async"><div id="fe-dim" aria-hidden="true"></div>';
+        el?.remove();
+        el = document.createElement('div');
+        el.id = id;
+        el.className = 'fe-layer';
+        el.innerHTML = `<img id="${imgId}" class="fe-img" alt="" decoding="async"><div class="fe-dim" aria-hidden="true"></div>`;
     }
-    if (chat && root.parentElement !== chat) {
-        chat.insertBefore(root, chat.firstChild);
-    } else if (!chat && !root.parentElement) {
-        document.body.prepend(root);
+    return el;
+}
+
+function placeLayer(el, parent, asFirst) {
+    if (!parent || el.parentElement === parent) {
+        return el;
+    }
+    if (asFirst && parent.firstChild) {
+        parent.insertBefore(el, parent.firstChild);
+    } else {
+        parent.prepend(el);
+    }
+    return el;
+}
+
+function ensureRoot() {
+    const root = placeLayer(makeLayer('fe-root', 'fe-img'), document.body, true);
+    const chat = document.getElementById('chat');
+    if (chat) {
+        placeLayer(makeLayer('fe-chat-root', 'fe-chat-img'), chat, true);
     }
     return root;
 }
@@ -172,14 +188,20 @@ function paintChatFallback(url) {
 }
 
 function applyVars(root) {
-    root.style.setProperty('--fe-blur', `${settings.blur}px`);
-    root.style.setProperty('--fe-dim', String(settings.dim / 100));
-    root.style.setProperty('--fe-pos', `${settings.posY}%`);
-    root.style.setProperty('--fe-zoom', String(settings.zoom / 100));
+    const blur = `${settings.blur}px`;
+    const dim = String(settings.dim / 100);
+    const pos = `${settings.posY}%`;
+    const zoom = String(settings.zoom / 100);
+    const targets = [root, document.getElementById('fe-chat-root'), document.documentElement].filter(Boolean);
+    for (const el of targets) {
+        el.style.setProperty('--fe-blur', blur);
+        el.style.setProperty('--fe-dim', dim);
+        el.style.setProperty('--fe-pos', pos);
+        el.style.setProperty('--fe-zoom', zoom);
+    }
 }
 
-function setWallpaperSrc(url, fallbackUrl) {
-    const img = document.getElementById('fe-img');
+function setOneSrc(img, url, fallbackUrl) {
     if (!img) {
         return;
     }
@@ -198,6 +220,11 @@ function setWallpaperSrc(url, fallbackUrl) {
         img.dataset.feTried = '';
         img.src = url;
     }
+}
+
+function setWallpaperSrc(url, fallbackUrl) {
+    setOneSrc(document.getElementById('fe-img'), url, fallbackUrl);
+    setOneSrc(document.getElementById('fe-chat-img'), url, fallbackUrl);
 }
 
 function apply() {
@@ -473,5 +500,5 @@ jQuery(async () => {
         const observer = new MutationObserver(() => apply());
         observer.observe(chat, { childList: true });
     }
-    console.log(LOG, 'chargé (1.0.3)');
+    console.log(LOG, 'chargé (1.0.4)');
 });

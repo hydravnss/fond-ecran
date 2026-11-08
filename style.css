@@ -1,21 +1,35 @@
 /* Fond d'écran — calque derrière le chat, style Emochi */
 
-#chat > #fe-root,
-#fe-root {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
+#fe-root,
+#fe-chat-root,
+.fe-layer {
     overflow: hidden;
     pointer-events: none;
     display: none;
 }
 
-body.fe-on #chat > #fe-root,
-body.fe-on #fe-root {
+/* Plein écran : passe derrière la barre d'icônes et la zone de saisie */
+#fe-root {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+}
+
+/* Copie dans le chat : l'image reste visible même si le thème est opaque */
+#chat > #fe-chat-root {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+body.fe-on #fe-root,
+body.fe-on #chat > #fe-chat-root {
     display: block;
 }
 
-#fe-img {
+.fe-img,
+#fe-img,
+#fe-chat-img {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -29,36 +43,68 @@ body.fe-on #fe-root {
     border: 0;
 }
 
-#fe-img:not([src]) {
+.fe-img:not([src]),
+#fe-img:not([src]),
+#fe-chat-img:not([src]) {
     visibility: hidden;
 }
 
+.fe-dim,
 #fe-dim {
     position: absolute;
     inset: 0;
     background: rgba(0, 0, 0, var(--fe-dim, 0.4));
 }
 
-/* L'image est un enfant du chat : elle se peint AU-DESSUS de
-   --SmartThemeChatTintColor (le noir opaque de Dark Lite). */
+/* L'image dans le chat se peint AU-DESSUS de --SmartThemeChatTintColor */
 html body.fe-on #chat {
     position: relative !important;
     isolation: isolate;
 }
 
 body.fe-on #chat > .mes,
-body.fe-on #chat > *:not(#fe-root) {
+body.fe-on #chat > *:not(#fe-chat-root):not(#fe-root) {
     position: relative;
     z-index: 1;
 }
 
+/* Barre du haut : plus de noir, le fond passe derrière les icônes */
+html body.fe-on #top-bar,
+html body.fe-on #top-settings-holder,
+html body.fe-on.no-blur #top-bar,
+html body.fe-on.no-blur #top-settings-holder {
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+/* Zone autour de la saisie : transparente pour laisser passer le fond */
+html body.fe-on #sheld,
+html body.fe-on #form_sheld,
+html body.fe-on.no-blur #sheld,
+html body.fe-on.no-blur #form_sheld {
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+/* Un peu de gris seulement sur la barre de message elle-même */
 html body.fe-on #send_form,
-html body.fe-on.no-blur #send_form {
+html body.fe-on.no-blur #send_form,
+html body.fe-on #send_form.compact {
     position: relative;
     z-index: 1;
-    background-color: rgba(20, 20, 22, 0.82) !important;
+    background-color: rgba(32, 32, 36, 0.38) !important;
+    background-image: none !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+}
+
+html body.fe-on #send_form #send_textarea,
+html body.fe-on #send_form textarea,
+html body.fe-on #send_form #nonQRFormItems {
+    background-color: transparent !important;
 }
 
 /* Cartes de messages, façon Emochi */
@@ -74,7 +120,8 @@ body.fe-on #chat .mes[is_user="true"] .mes_block {
 }
 
 /* Ne pas recouvrir le panneau Mémoire Permanente */
-body.pmem-lock #fe-root {
+body.pmem-lock #fe-root,
+body.pmem-lock #fe-chat-root {
     visibility: hidden !important;
 }
 

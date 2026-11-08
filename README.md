@@ -20,6 +20,8 @@ Ferme complètement l'onglet SillyTavern et rouvre-le après l'installation ou u
 
 **1.0.3** : l'image est peinte dans le chat, au-dessus de la couleur du thème.
 
+**1.0.4** : le fond passe aussi derrière la barre d'icônes et autour de la zone de saisie (plus de bande noire) ; la barre de message garde juste un peu de gris.
+
 ## Installation
 
 Depuis SillyTavern → Extensions → Installer une extension :
