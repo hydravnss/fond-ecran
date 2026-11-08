@@ -240,11 +240,20 @@ function paintChrome(active) {
     for (const id of ['top-bar', 'top-settings-holder', 'form_sheld', 'sheld']) {
         setImportant(document.getElementById(id), clear);
     }
+    setImportant(document.getElementById('sheld'), {
+        'padding-bottom': active ? '0px' : '',
+        'bottom': active ? '0px' : '',
+        'height': active ? 'auto' : '',
+        'max-height': active ? 'none' : '',
+    });
     setImportant(document.getElementById('send_form'), {
         'background-color': active ? 'rgba(32, 32, 36, 0.38)' : '',
         'background-image': active ? 'none' : '',
         'backdrop-filter': active ? 'none' : '',
         '-webkit-backdrop-filter': active ? 'none' : '',
+        'padding-bottom': active ? 'env(safe-area-inset-bottom, 0px)' : '',
+        'margin-bottom': active ? '0px' : '',
+        'box-sizing': active ? 'border-box' : '',
     });
 }
 
@@ -684,5 +693,5 @@ jQuery(async () => {
         const observer = new MutationObserver(() => apply());
         observer.observe(chat, { childList: true });
     }
-    console.log(LOG, 'chargé (1.0.10)');
+    console.log(LOG, 'chargé (1.0.11)');
 });
