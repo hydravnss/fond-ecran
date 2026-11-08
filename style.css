@@ -68,6 +68,12 @@ body.fe-on #chat > *:not(#fe-chat-root):not(#fe-root) {
     z-index: 1;
 }
 
+/* La barre d'état iOS (heure / batterie) reprend le fond, plus le #333 de SillyTavern */
+html body.fe-on,
+html:has(body.fe-on) {
+    background-color: transparent !important;
+}
+
 /* Barre du haut : plus de noir, le fond passe derrière les icônes */
 html body.fe-on #top-bar,
 html body.fe-on #top-settings-holder,

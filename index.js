@@ -197,6 +197,7 @@ function lockLayer(root) {
         display: 'block',
         margin: '0px',
         padding: '0px',
+        'min-height': 'calc(100dvh + env(safe-area-inset-top, 0px))',
     });
 }
 
@@ -244,6 +245,39 @@ function paintChrome(active) {
         'backdrop-filter': active ? 'none' : '',
         '-webkit-backdrop-filter': active ? 'none' : '',
     });
+}
+
+let savedThemeColor = null;
+
+function applyStatusBar(active) {
+    const metas = Array.from(document.querySelectorAll('meta[name="theme-color"]'));
+    if (active) {
+        if (savedThemeColor === null) {
+            savedThemeColor = metas[0] ? (metas[0].getAttribute('content') || '') : '#333';
+        }
+        if (metas.length) {
+            metas.forEach((meta) => meta.setAttribute('content', 'transparent'));
+        } else {
+            const meta = document.createElement('meta');
+            meta.setAttribute('name', 'theme-color');
+            meta.setAttribute('content', 'transparent');
+            meta.dataset.fe = '1';
+            document.head.appendChild(meta);
+        }
+        let apple = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+        if (!apple) {
+            apple = document.createElement('meta');
+            apple.setAttribute('name', 'apple-mobile-web-app-status-bar-style');
+            apple.dataset.fe = '1';
+            document.head.appendChild(apple);
+        }
+        apple.setAttribute('content', 'black-translucent');
+    } else if (savedThemeColor !== null) {
+        document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
+            meta.setAttribute('content', savedThemeColor);
+        });
+        document.querySelectorAll('meta[data-fe="1"]').forEach((meta) => meta.remove());
+    }
 }
 
 function applyVars(root) {
@@ -303,10 +337,12 @@ function apply() {
         setWallpaperSrc(url, custom ? '' : fallbackAvatarUrl(key));
         paintChatFallback(url);
         paintChrome(true);
+        applyStatusBar(true);
     } else {
         setWallpaperSrc('');
         paintChatFallback('');
         paintChrome(false);
+        applyStatusBar(false);
     }
     refreshSettingsPreview();
 }
@@ -562,5 +598,5 @@ jQuery(async () => {
         const observer = new MutationObserver(() => apply());
         observer.observe(chat, { childList: true });
     }
-    console.log(LOG, 'chargé (1.0.5)');
+    console.log(LOG, 'chargé (1.0.6)');
 });

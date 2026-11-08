@@ -24,6 +24,8 @@ Ferme complètement l'onglet SillyTavern et rouvre-le après l'installation ou u
 
 **1.0.5** : le fond est aussi collé sur l'arrière-plan de SillyTavern, et la barre du haut / la zone de saisie sont forcées en transparent (un peu de gris sur le champ de texte).
 
+**1.0.6** : le fond monte jusqu'à l'heure et la batterie (barre d'état iOS), plus seulement jusqu'aux icônes.
+
 ## Installation
 
 Depuis SillyTavern → Extensions → Installer une extension :
