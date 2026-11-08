@@ -266,6 +266,69 @@ function paintChatFallback(url) {
     paintBox(document.getElementById('chat'), url);
     paintBox(document.getElementById('bg1'), url);
     paintBox(document.getElementById('bg_custom'), url);
+    paintBox(document.documentElement, url);
+    paintBox(document.body, url);
+    paintBox(document.getElementById('fe-bottom'), url);
+}
+
+function sizeBottomStrip() {
+    const strip = document.getElementById('fe-bottom');
+    const send = document.getElementById('send_form');
+    const sheld = document.getElementById('sheld');
+    if (!strip) {
+        return;
+    }
+    if (!document.body.classList.contains('fe-on') || !send) {
+        setImportant(strip, { height: '', 'min-height': '', display: '' });
+        return;
+    }
+
+    setImportant(sheld, {
+        'padding-bottom': '0px',
+        'margin-bottom': '0px',
+    });
+    setImportant(strip, {
+        height: '0px',
+        'min-height': '0px',
+        display: 'block',
+        overflow: 'hidden',
+        'flex-shrink': '0',
+        'pointer-events': 'none',
+    });
+
+    const sendBottom = send.getBoundingClientRect().bottom;
+    const vv = window.visualViewport;
+    const viewBottom = vv ? Math.round(vv.offsetTop + vv.height) : (window.innerHeight || 0);
+    let gap = Math.round(viewBottom - sendBottom);
+    if (gap < 2) {
+        gap = 0;
+    } else if (gap > 80) {
+        gap = 34;
+    }
+
+    setImportant(strip, {
+        height: `${gap}px`,
+        'min-height': `${gap}px`,
+        display: gap ? 'block' : 'none',
+    });
+}
+
+function bindBottomListeners() {
+    if (window.__feBottomBound) {
+        return;
+    }
+    window.__feBottomBound = true;
+    const rerun = () => {
+        if (document.body.classList.contains('fe-on')) {
+            sizeBottomStrip();
+        }
+    };
+    window.addEventListener('resize', rerun);
+    window.addEventListener('orientationchange', rerun);
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', rerun);
+        window.visualViewport.addEventListener('scroll', rerun);
+    }
 }
 
 function restoreSendFormLayout() {
@@ -274,14 +337,15 @@ function restoreSendFormLayout() {
     const form = document.getElementById('form_sheld');
     const chat = document.getElementById('chat');
     const fill = document.getElementById('fe-bottom-fill');
+    const active = document.body.classList.contains('fe-on');
 
     // Annule les overrides qui faisaient disparaître la saisie.
     setImportant(sheld, {
-        'padding-bottom': '',
+        'padding-bottom': active ? '0px' : '',
         bottom: '',
         height: '',
         'max-height': '',
-        'margin-bottom': '',
+        'margin-bottom': active ? '0px' : '',
     });
     setImportant(send, {
         position: '',
@@ -297,6 +361,9 @@ function restoreSendFormLayout() {
     setImportant(chat, { 'max-height': '' });
     if (fill && fill.parentNode) {
         fill.parentNode.removeChild(fill);
+    }
+    if (active) {
+        sizeBottomStrip();
     }
 }
 
@@ -318,6 +385,9 @@ function paintChrome(active) {
         '-webkit-backdrop-filter': active ? 'none' : '',
     });
     restoreSendFormLayout();
+    if (active) {
+        requestAnimationFrame(sizeBottomStrip);
+    }
 }
 
 let savedThemeMetas = null;
@@ -758,5 +828,6 @@ jQuery(async () => {
         observer.observe(chat, { childList: true });
     }
     restoreSendFormLayout();
-    console.log(LOG, 'chargé (1.0.16)');
+    bindBottomListeners();
+    console.log(LOG, 'chargé (1.0.17)');
 });
