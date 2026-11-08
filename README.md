@@ -28,6 +28,8 @@ Ferme complètement l'onglet SillyTavern et rouvre-le après l'installation ou u
 
 **1.0.7** : la couleur de barre d'état #333 est retirée (iOS l'ignorait en transparent) et le portrait est peint dans la bande sous l'heure.
 
+**1.0.8** : dans Safari, la bande sous l'heure prend la couleur du haut du portrait (Safari n'y autorise pas une photo). En ajoutant SillyTavern à l'écran d'accueil, le fond passe derrière l'horloge.
+
 ## Installation
 
 Depuis SillyTavern → Extensions → Installer une extension :

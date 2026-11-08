@@ -250,7 +250,66 @@ function paintChrome(active) {
 
 let savedThemeMetas = null;
 
-function applyStatusBar(active) {
+function ensureAppleStatusBar() {
+    let apple = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+    if (!apple) {
+        apple = document.createElement('meta');
+        apple.setAttribute('name', 'apple-mobile-web-app-status-bar-style');
+        apple.dataset.fe = '1';
+        document.head.appendChild(apple);
+    }
+    apple.setAttribute('content', 'black-translucent');
+}
+
+function setThemeColorValue(value) {
+    let meta = document.querySelector('meta[name="theme-color"]');
+    if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('name', 'theme-color');
+        meta.dataset.fe = '1';
+        document.head.appendChild(meta);
+    }
+    meta.setAttribute('content', value);
+}
+
+function sampleTopColor(url, done) {
+    if (!url) {
+        done(null);
+        return;
+    }
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+        try {
+            const canvas = document.createElement('canvas');
+            canvas.width = 32;
+            canvas.height = 6;
+            const draw = canvas.getContext('2d');
+            const srcH = Math.max(1, Math.round((img.naturalHeight || img.height || 1) * 0.1));
+            const srcW = img.naturalWidth || img.width || 1;
+            draw.drawImage(img, 0, 0, srcW, srcH, 0, 0, 32, 6);
+            const data = draw.getImageData(0, 0, 32, 6).data;
+            let r = 0;
+            let g = 0;
+            let b = 0;
+            let n = 0;
+            for (let i = 0; i < data.length; i += 4) {
+                r += data[i];
+                g += data[i + 1];
+                b += data[i + 2];
+                n += 1;
+            }
+            done(`rgb(${Math.round(r / n)}, ${Math.round(g / n)}, ${Math.round(b / n)})`);
+        } catch (err) {
+            done(null);
+        }
+    };
+    img.onerror = () => done(null);
+    img.src = url;
+}
+
+function applyStatusBar(active, url) {
+    ensureAppleStatusBar();
     if (active) {
         if (savedThemeMetas === null) {
             savedThemeMetas = Array.from(document.querySelectorAll('meta[name="theme-color"]')).map((meta) => ({
@@ -258,16 +317,20 @@ function applyStatusBar(active) {
                 media: meta.getAttribute('media') || '',
             }));
         }
-        // iOS ignore "transparent" : on retire carrément la balise #333
-        document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => meta.remove());
-        let apple = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
-        if (!apple) {
-            apple = document.createElement('meta');
-            apple.setAttribute('name', 'apple-mobile-web-app-status-bar-style');
-            apple.dataset.fe = '1';
-            document.head.appendChild(apple);
-        }
-        apple.setAttribute('content', 'black-translucent');
+        document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
+            if (!meta.dataset.fe) {
+                meta.remove();
+            }
+        });
+        // Safari ne montre qu'une couleur unie ici : on prend celle du haut du portrait
+        // au lieu du #333 noir. En mode écran d'accueil, black-translucent laisse
+        // passer l'image.
+        setThemeColorValue('#1a1a1e');
+        sampleTopColor(url, (color) => {
+            if (color && document.body.classList.contains('fe-on')) {
+                setThemeColorValue(color);
+            }
+        });
     } else if (savedThemeMetas !== null) {
         document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => meta.remove());
         savedThemeMetas.forEach((info) => {
@@ -343,7 +406,7 @@ function apply() {
         setWallpaperSrc(url, custom ? '' : fallbackAvatarUrl(key));
         paintChatFallback(url);
         paintChrome(true);
-        applyStatusBar(true);
+        applyStatusBar(true, url);
     } else {
         setWallpaperSrc('');
         paintChatFallback('');
@@ -604,5 +667,5 @@ jQuery(async () => {
         const observer = new MutationObserver(() => apply());
         observer.observe(chat, { childList: true });
     }
-    console.log(LOG, 'chargé (1.0.7)');
+    console.log(LOG, 'chargé (1.0.8)');
 });
