@@ -183,7 +183,34 @@ function setImportant(el, props) {
     }
 }
 
+function screenCssHeight() {
+    const inner = window.innerHeight || 0;
+    const client = document.documentElement ? document.documentElement.clientHeight : 0;
+    const vv = window.visualViewport;
+    const vvH = vv ? Math.round(vv.height + (vv.offsetTop || 0)) : 0;
+    const layoutH = Math.max(inner, client, vvH);
+
+    let oriented = 0;
+    if (window.screen && window.screen.width && window.screen.height) {
+        const portrait = window.innerHeight >= window.innerWidth;
+        oriented = portrait
+            ? Math.max(window.screen.width, window.screen.height)
+            : Math.min(window.screen.width, window.screen.height);
+    }
+
+    // Clavier ouvert : le viewport rétrécit beaucoup plus que la bande de l'indicateur.
+    if (oriented && layoutH && (oriented - layoutH > 80)) {
+        return layoutH;
+    }
+    if (typeof isHomeScreenApp === 'function' && isHomeScreenApp() && oriented) {
+        return Math.max(oriented, layoutH);
+    }
+    return layoutH || oriented || inner;
+}
+
 function lockLayer(root) {
+    const h = screenCssHeight();
+    const px = h ? `${Math.round(h)}px` : '100dvh';
     setImportant(root, {
         position: 'fixed',
         top: '0px',
@@ -191,14 +218,14 @@ function lockLayer(root) {
         right: '0px',
         bottom: '0px',
         width: '100vw',
-        height: '100dvh',
+        height: px,
         'z-index': '0',
         'pointer-events': 'none',
         overflow: 'hidden',
         display: 'block',
         margin: '0px',
         padding: '0px',
-        'min-height': 'calc(100dvh + env(safe-area-inset-top, 0px))',
+        'min-height': px,
     });
 }
 
@@ -229,6 +256,42 @@ function paintChatFallback(url) {
     paintBox(document.getElementById('bg_custom'), url);
 }
 
+function pinSheldToScreenBottom(active) {
+    const sheld = document.getElementById('sheld');
+    const send = document.getElementById('send_form');
+    if (!active) {
+        setImportant(sheld, {
+            'padding-bottom': '',
+            bottom: '',
+            height: '',
+            'max-height': '',
+            'margin-bottom': '',
+        });
+        return;
+    }
+    if (!sheld) {
+        return;
+    }
+    setImportant(sheld, {
+        'padding-bottom': '0px',
+        'margin-bottom': '0px',
+        'max-height': 'none',
+    });
+    if (send) {
+        setImportant(send, {
+            'margin-bottom': '0px',
+        });
+    }
+    const top = sheld.getBoundingClientRect().top;
+    const targetH = Math.max(100, Math.round(screenCssHeight() - top));
+    setImportant(sheld, {
+        height: `${targetH}px`,
+        bottom: 'auto',
+        'max-height': 'none',
+        'padding-bottom': '0px',
+    });
+}
+
 function paintChrome(active) {
     const clear = {
         'background-color': active ? 'transparent' : '',
@@ -240,21 +303,28 @@ function paintChrome(active) {
     for (const id of ['top-bar', 'top-settings-holder', 'form_sheld', 'sheld']) {
         setImportant(document.getElementById(id), clear);
     }
-    setImportant(document.getElementById('sheld'), {
-        'padding-bottom': active ? '0px' : '',
-        'bottom': active ? '0px' : '',
-        'height': active ? 'auto' : '',
-        'max-height': active ? 'none' : '',
-    });
     setImportant(document.getElementById('send_form'), {
         'background-color': active ? 'rgba(32, 32, 36, 0.38)' : '',
         'background-image': active ? 'none' : '',
         'backdrop-filter': active ? 'none' : '',
         '-webkit-backdrop-filter': active ? 'none' : '',
-        'padding-bottom': active ? 'env(safe-area-inset-bottom, 0px)' : '',
         'margin-bottom': active ? '0px' : '',
-        'box-sizing': active ? 'border-box' : '',
     });
+    pinSheldToScreenBottom(active);
+    requestAnimationFrame(() => pinSheldToScreenBottom(active));
+}
+
+function bindPinListeners() {
+    const rerun = () => {
+        if (document.body.classList.contains('fe-on')) {
+            pinSheldToScreenBottom(true);
+        }
+    };
+    window.addEventListener('resize', rerun);
+    window.addEventListener('orientationchange', rerun);
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', rerun);
+    }
 }
 
 let savedThemeMetas = null;
@@ -693,5 +763,16 @@ jQuery(async () => {
         const observer = new MutationObserver(() => apply());
         observer.observe(chat, { childList: true });
     }
-    console.log(LOG, 'chargé (1.0.11)');
+    bindPinListeners();
+    setTimeout(() => {
+        if (document.body.classList.contains('fe-on')) {
+            pinSheldToScreenBottom(true);
+        }
+    }, 100);
+    setTimeout(() => {
+        if (document.body.classList.contains('fe-on')) {
+            pinSheldToScreenBottom(true);
+        }
+    }, 400);
+    console.log(LOG, 'chargé (1.0.12)');
 });

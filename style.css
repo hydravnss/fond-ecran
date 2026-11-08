@@ -129,18 +129,18 @@ html body.fe-on.no-blur #form_sheld {
     background-image: none !important;
 }
 
-/* L’app écran d’accueil laisse une bande sous #sheld (safe-area).
-   On étire la colonne jusqu’en bas et on descend la saisie dedans. */
+/* Plus de réserve sous #sheld : la hauteur réelle est posée en JS
+   jusqu’au bas physique de l’écran, sans étirer la barre de saisie. */
 html body.fe-on #sheld,
 html body.fe-on.no-blur #sheld,
 html body.PWA.fe-on #sheld {
     padding-bottom: 0 !important;
-    bottom: 0 !important;
-    height: auto !important;
+    margin-bottom: 0 !important;
     max-height: none !important;
 }
 
-/* Un peu de gris seulement sur la barre de message elle-même */
+/* Un peu de gris seulement sur la barre de message elle-même.
+   On ne lui ajoute pas de padding : ça la déformerait. */
 html body.fe-on #send_form,
 html body.fe-on.no-blur #send_form,
 html body.fe-on #send_form.compact {
@@ -150,9 +150,7 @@ html body.fe-on #send_form.compact {
     background-image: none !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
     margin-bottom: 0 !important;
-    box-sizing: border-box !important;
 }
 
 html body.fe-on #send_form #send_textarea,

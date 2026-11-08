@@ -1,14 +1,14 @@
 {
-    "display_name": "Fond d'écran",
+    "display_name": "Fond d'\u00e9cran",
     "loading_order": 100,
     "requires": [],
     "optional": [],
-    "js": "index-111.js",
-    "css": "style-111.css",
+    "js": "index-112.js",
+    "css": "style-112.css",
     "author": "hydravnss",
-    "version": "1.0.11",
+    "version": "1.0.12",
     "minimum_client_version": "1.12.0",
     "auto_update": true,
     "homePage": "https://github.com/hydravnss/fond-ecran",
-    "description": "FR: Fond d'écran derrière le chat, façon Emochi, avec réglage du flou. EN: Emochi-style chat wallpaper with adjustable blur."
+    "description": "FR: Fond d'\u00e9cran derri\u00e8re le chat, fa\u00e7on Emochi, avec r\u00e9glage du flou. EN: Emochi-style chat wallpaper with adjustable blur."
 }
